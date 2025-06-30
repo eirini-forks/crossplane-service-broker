@@ -89,10 +89,6 @@ func parseLabels(l map[string]string) (*Labels, error) {
 	}
 	var err error
 
-	if !md.ServiceName.IsValid() {
-		return nil, fmt.Errorf("service %q not valid", md.ServiceName)
-	}
-
 	md.Bindable, err = parseBoolLabel(l[BindableLabel], true)
 	if err != nil {
 		return nil, err

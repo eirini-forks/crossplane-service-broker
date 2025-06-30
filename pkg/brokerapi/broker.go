@@ -141,31 +141,27 @@ func (b Broker) Deprovision(rctx *reqcontext.ReqContext, instanceID, planID stri
 
 // Bind creates a binding between a provisioned service instance and an application.
 func (b Broker) Bind(rctx *reqcontext.ReqContext, instanceID, bindingID, planID string, asyncAllowed bool) (domain.Binding, error) {
-	res := domain.Binding{
-		IsAsync: asyncAllowed,
-	}
-
 	_, instance, err := b.getPlanInstance(rctx, planID, instanceID)
 	if err != nil {
-		return res, err
+		return domain.Binding{}, err
 	}
 	if !instance.Ready() {
-		return res, apiresponses.ErrConcurrentInstanceAccess
+		return domain.Binding{}, apiresponses.ErrConcurrentInstanceAccess
 	}
 
 	sb, err := crossplane.ServiceBinderFactory(b.cp, instance.Labels.ServiceName, instance, rctx.Logger)
 	if err != nil {
-		return res, err
+		return domain.Binding{}, err
 	}
 
 	creds, err := sb.Bind(rctx.Context, bindingID)
 	if err != nil {
-		return res, err
+		return domain.Binding{}, err
 	}
 
-	res.Credentials = creds
-
-	return res, nil
+	return domain.Binding{
+		Credentials: creds,
+	}, nil
 }
 
 // Unbind removes a binding.

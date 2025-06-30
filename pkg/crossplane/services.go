@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"code.cloudfoundry.org/lager"
 )
@@ -31,15 +30,6 @@ type Endpoint struct {
 
 // ServiceName contains all defined service names to handle specific implementations.
 type ServiceName string
-
-// IsValid returns true if the ServiceName is one of the defined ones.
-func (s ServiceName) IsValid() bool {
-	switch s {
-	case RedisService, MariaDBService, MariaDBDatabaseService:
-		return true
-	}
-	return false
-}
 
 // Defined service names
 var (
@@ -74,8 +64,9 @@ func ServiceBinderFactory(c *Crossplane, serviceName ServiceName, instance *Inst
 		return NewMariadbServiceBinder(c, instance, logger), nil
 	case MariaDBDatabaseService:
 		return NewMariadbDatabaseServiceBinder(c, instance, logger), nil
+	default:
+		return NewGenericServiceBinder(c, instance, logger), nil
 	}
-	return nil, fmt.Errorf("service binder %q not implemented", serviceName)
 }
 
 type serviceBinder struct {
