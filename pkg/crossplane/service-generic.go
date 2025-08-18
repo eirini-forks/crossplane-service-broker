@@ -3,6 +3,7 @@ package crossplane
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"code.cloudfoundry.org/lager"
 )
@@ -48,6 +49,12 @@ func (g GenericServiceBinder) GetBinding(ctx context.Context, bindingID string) 
 }
 
 func (g GenericServiceBinder) ValidateProvisionParams(ctx context.Context, params json.RawMessage) (map[string]any, error) {
-	// TODO: unmarshal raw params
-	return map[string]any{}, nil
+	validatedParams := map[string]any{}
+
+	err := json.Unmarshal(params, &validatedParams)
+	if err != nil {
+		return validatedParams, fmt.Errorf("cannot unmarshal parameters: %w", err)
+	}
+
+	return validatedParams, nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"reflect"
 
 	"code.cloudfoundry.org/lager"
 	xrv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
@@ -76,42 +77,49 @@ func (b Broker) servicePlans(rctx *reqcontext.ReqContext, serviceIDs []string) (
 
 // Provision creates a new service instance.
 func (b Broker) Provision(rctx *reqcontext.ReqContext, instanceID, planID string, params json.RawMessage) (domain.ProvisionedServiceSpec, error) {
-	res := domain.ProvisionedServiceSpec{}
-
 	plan, err := b.cp.Plan(rctx, planID)
 	if err != nil {
-		return res, err
+		return domain.ProvisionedServiceSpec{}, err
 	}
 
 	instance, exists, err := b.cp.Instance(rctx, instanceID, plan)
 	if err != nil {
-		return res, err
-	}
-	if exists {
-		// To avoid having to compare parameters,
-		// only instances without any parameters are considered to be equal to another (i.e. existing)
-		if params == nil {
-			res.AlreadyExists = true
-			return res, nil
-		}
-		return res, apiresponses.ErrInstanceAlreadyExists
+		return domain.ProvisionedServiceSpec{}, err
 	}
 
 	ap := map[string]interface{}{}
 	if params != nil {
 		ap, err = b.validateParams(rctx, instance, plan.Labels.ServiceName, params)
 		if err != nil {
-			return res, err
+			return domain.ProvisionedServiceSpec{}, err
 		}
+	}
+
+	if exists {
+		if !reflect.DeepEqual(instance.Parameters(), ap) {
+			return domain.ProvisionedServiceSpec{}, apiresponses.ErrInstanceAlreadyExists
+		}
+
+		if !instance.Ready() {
+			return domain.ProvisionedServiceSpec{
+				IsAsync:       true,
+				OperationData: "provision-" + instanceID,
+			}, nil
+		}
+
+		return domain.ProvisionedServiceSpec{
+			AlreadyExists: true,
+		}, nil
 	}
 
 	err = b.cp.CreateInstance(rctx, instanceID, plan, ap)
 	if err != nil {
-		return res, err
+		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	res.IsAsync = true
-	return res, nil
+	return domain.ProvisionedServiceSpec{
+		IsAsync: true,
+	}, nil
 }
 
 // Deprovision removes a provisioned instance.
