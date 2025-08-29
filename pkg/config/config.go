@@ -215,9 +215,6 @@ func getServiceIDs(getEnv GetEnv) ([]string, error) {
 			ids = append(ids, s)
 		}
 	}
-	if len(ids) == 0 {
-		return nil, fmt.Errorf("%s is required, but was not defined or is empty", EnvServiceIDs)
-	}
 	return ids, nil
 }
 

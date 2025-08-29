@@ -56,5 +56,9 @@ func (g GenericServiceBinder) ValidateProvisionParams(ctx context.Context, param
 		return validatedParams, fmt.Errorf("cannot unmarshal parameters: %w", err)
 	}
 
+	if validatedParams == nil {
+		validatedParams = map[string]any{}
+	}
+
 	return validatedParams, nil
 }
