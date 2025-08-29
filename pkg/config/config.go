@@ -45,6 +45,7 @@ const (
 	EnvNamespace = "OSB_NAMESPACE"
 
 	// EnvServiceIDs is a comma-separated list (no whitespace after comma!) of service ids available in the cluster
+	// Deprecated: do not use that, the broker will expose all CompositeServiceDefinitions with label `service.syn.tools/id`
 	EnvServiceIDs = "OSB_SERVICE_IDS"
 
 	// EnvUsername defines the username to use when connecting to this service broker

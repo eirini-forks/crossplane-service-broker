@@ -93,7 +93,7 @@ type ServiceXRD struct {
 func (cp Crossplane) ServiceXRDs(rctx *reqcontext.ReqContext) ([]*ServiceXRD, error) {
 	xrds := &xv1.CompositeResourceDefinitionList{}
 
-	req, err := labels.NewRequirement(ServiceIDLabel, selection.In, cp.config.ServiceIDs)
+	req, err := labels.NewRequirement(ServiceIDLabel, selection.Exists, []string{})
 	if err != nil {
 		return nil, err
 	}
