@@ -1,3 +1,9 @@
+> This is a fork of [crossplane-service-broker](https://github.com/vshn/crossplane-service-broker) meant to be used in the context described in [this repo](https://github.com/eirini-forks/cfday-europe-2025)
+> Notable changes:
+> - Introduce generic declarative services, that do not need custom binders
+> - Improve service parameter handling
+> - Dynamically detect new services rather than explicitly listing them in the broker config
+
 [![Build](https://img.shields.io/github/workflow/status/vshn/crossplane-service-broker/Pull%20Request)][build]
 ![Go version](https://img.shields.io/github/go-mod/go-version/vshn/crossplane-service-broker)
 [![Version](https://img.shields.io/github/v/release/vshn/crossplane-service-broker)][releases]
